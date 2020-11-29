@@ -1,0 +1,22 @@
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+type Mutation {
+    subscribe(address: String!): Boolean!
+    unsubscribe(address: String!): Boolean!
+    publish(data: JsonInput!): Boolean!
+}
+
+type Query {
+    history(from: Int!, n: Int!): [Json!]!
+}
+
+input JsonInput {
+    str: String!
+}
+
+type Json {
+    str: String!
+}

@@ -1,5 +1,38 @@
-name := "publisher"
+import Settings._
 
-version := "0.1"
+inThisBuild(
+  scalaVersion := Versions.scala
+)
 
-scalaVersion := "2.13.4"
+lazy val publisher = project
+  .in(file("."))
+  .settings(commonSettings)
+  .aggregate(receiver, sender)
+
+lazy val receiver = project
+  .in(file("receiver"))
+  .enablePlugins(JavaAppPackaging)
+  .dependsOn(common)
+  .settings(commonSettings)
+  .settings(
+    Settings.compilerPlugins.map(addCompilerPlugin): _*
+  )
+  .settings(libraryDependencies ++= receiverDeps)
+
+lazy val sender = project
+  .in(file("sender"))
+  .enablePlugins(JavaAppPackaging)
+  .dependsOn(common)
+  .settings(commonSettings)
+  .settings(
+    Settings.compilerPlugins.map(addCompilerPlugin): _*
+  )
+  .settings(libraryDependencies ++= receiverDeps)
+
+lazy val common = project
+  .in(file("common"))
+  .settings(commonSettings)
+  .settings(libraryDependencies ++= commonDeps)
+  .settings(
+    Settings.compilerPlugins.map(addCompilerPlugin): _*
+  )
