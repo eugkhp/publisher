@@ -8,7 +8,7 @@ object Versions {
   val tofu        = "0.8.0"
   val derevo      = "0.11.4"
   val sttp        = "3.0.0-RC7"
-  val http4s      = "1.0.0-M4"
+  val http4s      = "0.21.13"
   val cats        = "2.2.0"
   val cats_effect = "2.2.0"
   val circe       = "0.14.0-M1"

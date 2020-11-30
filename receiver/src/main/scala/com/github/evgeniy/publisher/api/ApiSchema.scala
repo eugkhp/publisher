@@ -2,10 +2,9 @@ package com.github.evgeniy.publisher.api
 
 import caliban.{ GraphQL, RootResolver }
 import cats.effect.Effect
-import com.github.evgeniy.publisher.Store
 import caliban.interop.cats.implicits._
 import cats.implicits._
-import com.github.evgeniy.publisher.services.{ Queue, Subscribers }
+import com.github.evgeniy.publisher.services.{ Queue, Store, Subscribers }
 
 object ApiSchema {
 
@@ -30,18 +29,20 @@ object ApiSchema {
 
     case class PublishArg(msg: String)
 
-    Effect[F].pure(
-      GraphQL
-        .graphQL(
-          RootResolver(
-            Queries(arg => db.getMessages(arg.from, arg.to)),
-            Mutation(
-              arg => queue.pushMessage(arg.msg).as(true),
-              arg => subscribers.subscribe(arg.addr).as(true),
-              arg => subscribers.unsubscribe(arg.addr).as(true)
-            )
+    val value = GraphQL
+      .graphQL(
+        RootResolver(
+          Queries(arg => db.getMessages(arg.from, arg.to)),
+          Mutation(
+            arg => queue.pushMessage(arg.msg).as(true),
+            arg => subscribers.subscribe(arg.addr).as(true),
+            arg => subscribers.unsubscribe(arg.addr).as(true)
           )
         )
+      )
+    println(value.toString)
+    Effect[F].pure(
+      value
     )
   }
 }

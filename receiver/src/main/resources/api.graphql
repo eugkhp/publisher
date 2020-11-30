@@ -6,17 +6,10 @@ schema {
 type Mutation {
     subscribe(address: String!): Boolean!
     unsubscribe(address: String!): Boolean!
-    publish(data: JsonInput!): Boolean!
+    publish(data: String!): Boolean!
 }
 
 type Query {
-    history(from: Int!, n: Int!): [Json!]!
+    history(from: Int!, n: Int!): [String!]!
 }
 
-input JsonInput {
-    str: String!
-}
-
-type Json {
-    str: String!
-}

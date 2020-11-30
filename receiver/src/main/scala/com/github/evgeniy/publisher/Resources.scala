@@ -1,13 +1,16 @@
 package com.github.evgeniy.publisher
 
-import cats.effect.{ Blocker, Effect, Resource, Sync }
+import cats.effect.{ Blocker, ConcurrentEffect, ContextShift, Effect, Resource, Sync }
 import com.github.evgeniy.publisher.api.ApiSchema
 import com.github.evgeniy.publisher.api.ApiSchema.GQL
-import com.github.evgeniy.publisher.services.{ Queue, Subscribers }
+import com.github.evgeniy.publisher.services.{ Queue, Store, Subscribers }
 import com.typesafe.config.ConfigFactory
 import pureconfig.ConfigSource
 import com.github.evgeniy.publisher.syntax._
 import pureconfig.generic.auto._
+import dev.profunktor.redis4cats.Redis
+import dev.profunktor.redis4cats.effect.Log.Stdout._
+import tofu.logging.Logs
 
 case class Resources[F[_]](
   appConfig: AppConfig,
@@ -16,13 +19,15 @@ case class Resources[F[_]](
 )
 
 object Resources {
-  def make[F[_]: Effect]: Resource[F, Resources[F]] =
+
+  def make[F[_]: Effect: ConcurrentEffect: ContextShift](implicit L: Logs[F, F]): Resource[F, Resources[F]] =
     for {
       config      <- Sync[F].delay(ConfigFactory.load()).resource
       appConfig   <- Sync[F].delay(ConfigSource.fromConfig(config).loadOrThrow[AppConfig]).resource
-      db          <- Store.make[F](appConfig.queueUri).resource
-      queue       <- Queue.make[F]().resource
-      subscribers <- Subscribers.make[F]().resource
+      redis       <- Redis[F].utf8(appConfig.redis)
+      db          <- Store.make[F](redis).resource
+      queue       <- Queue.make[F](redis).resource
+      subscribers <- Subscribers.make[F](redis).resource
       schema      <- ApiSchema.make[F](db, queue, subscribers).resource
       io          <- Blocker.apply[F]
     } yield Resources[F](appConfig, schema, io)

@@ -1,11 +1,28 @@
 package com.github.evgeniy.publisher.services
 
+import cats.MonadError
+import dev.profunktor.redis4cats.RedisCommands
+import tofu.logging.{ Logging, Logs }
+import cats.implicits._
+
 trait Subscribers[F[_]] {
   def subscribe(addr: String): F[Unit]
   def unsubscribe(addr: String): F[Unit]
 }
 
 object Subscribers {
+  def make[F[_]: MonadError[*[_], Throwable]](
+    client: RedisCommands[F, String, String]
+  )(implicit L: Logs[F, F]): F[Subscribers[F]] =
+    for {
+      implicit0(log: Logging[F]) <- Logs[F, F].forService[Subscribers.type]
+    } yield (new Impl[F](client))
 
-  def make[F[_]](): F[Subscribers[F]] = ???
+  class Impl[F[_]](client: RedisCommands[F, String, String]) extends Subscribers[F] {
+    override def subscribe(addr: String): F[Unit] =
+      client.sAdd("subscribers", addr)
+
+    override def unsubscribe(addr: String): F[Unit] =
+      client.sRem("subscribers", addr)
+  }
 }
