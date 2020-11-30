@@ -1,0 +1,20 @@
+# This file was generated based on ".graphqlconfig". Do not edit manually.
+
+schema {
+    query: Queries
+    mutation: Mutation
+}
+
+type Mutation {
+    publish(msg: String!): Boolean!
+    subscribe(addr: String!): Boolean!
+    unsubscribe(addr: String!): Boolean!
+}
+
+type Queries {
+    history(from: Int!, to: Int!): [String!]!
+}
+
+query {
+    history(from: 0, to:10)
+}

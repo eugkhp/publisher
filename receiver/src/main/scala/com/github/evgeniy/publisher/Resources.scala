@@ -1,5 +1,6 @@
 package com.github.evgeniy.publisher
 
+import cats.Parallel
 import cats.effect.{ Blocker, ConcurrentEffect, ContextShift, Effect, Resource, Sync }
 import com.github.evgeniy.publisher.api.ApiSchema
 import com.github.evgeniy.publisher.api.ApiSchema.GQL
@@ -20,7 +21,7 @@ case class Resources[F[_]](
 
 object Resources {
 
-  def make[F[_]: Effect: ConcurrentEffect: ContextShift](implicit L: Logs[F, F]): Resource[F, Resources[F]] =
+  def make[F[_]: Effect: ConcurrentEffect: ContextShift: Parallel](implicit L: Logs[F, F]): Resource[F, Resources[F]] =
     for {
       config      <- Sync[F].delay(ConfigFactory.load()).resource
       appConfig   <- Sync[F].delay(ConfigSource.fromConfig(config).loadOrThrow[AppConfig]).resource
