@@ -4,27 +4,44 @@ import caliban.{ GraphQL, RootResolver }
 import cats.effect.Effect
 import com.github.evgeniy.publisher.Store
 import caliban.interop.cats.implicits._
+import cats.implicits._
+import com.github.evgeniy.publisher.services.{ Queue, Subscribers }
 
-class ApiSchema[F[_]: Effect](db: Store[F]) {
+object ApiSchema {
 
-  case class HistoryArg(from: Int, to: Int)
+  type GQL = GraphQL[Any]
 
-  case class Queries(
-    modules: HistoryArg => F[List[String]]
-  )
+  def make[F[_]: Effect](db: Store[F], queue: Queue[F], subscribers: Subscribers[F]): F[GQL] = {
+    case class HistoryArg(from: Int, to: Int)
 
-  case class Mutation(
-    subscribe: SubArg => F[Boolean],
-    unsubscribe: UnSubArg => F[Boolean],
-    publish: PublishArg => F[Boolean]
-  )
+    case class Queries(
+      modules: HistoryArg => F[List[String]]
+    )
 
-  val schema = GraphQL.graphQL(RootResolver(Queries(arg => db.getMessages(arg.from, arg.to))))
+    case class Mutation(
+      publish: PublishArg => F[Boolean],
+      subscribe: SubArg => F[Boolean],
+      unsubscribe: UnSubArg => F[Boolean]
+    )
 
-  case class SubArg(addr: String)
+    case class SubArg(addr: String)
 
-  case class UnSubArg(addr: String)
+    case class UnSubArg(addr: String)
 
-  case class PublishArg(msg: String)
+    case class PublishArg(msg: String)
 
+    Effect[F].pure(
+      GraphQL
+        .graphQL(
+          RootResolver(
+            Queries(arg => db.getMessages(arg.from, arg.to)),
+            Mutation(
+              arg => queue.pushMessage(arg.msg).as(true),
+              arg => subscribers.subscribe(arg.addr).as(true),
+              arg => subscribers.unsubscribe(arg.addr).as(true)
+            )
+          )
+        )
+    )
+  }
 }

@@ -55,7 +55,7 @@ object Settings {
     "co.fs2" %% "fs2-io"
   ).map(_ % Versions.fs2)
 
-//  lazy val monix = Seq("io.monix" %% "monix" % Versions.monix)
+  lazy val monix = Seq("io.monix" %% "monix" % Versions.monix)
 
   lazy val sttp = Seq(
     "com.softwaremill.sttp.client3" %% "core",
@@ -93,9 +93,14 @@ object Settings {
     "com.github.pureconfig" %% "pureconfig-cats"
   ).map(_ % Versions.pureConfig)
 
+  lazy val redis4cats = Seq(
+    "dev.profunktor" %% "redis4cats-effects",
+    "dev.profunktor" %% "redis4cats-log4cats"
+  ).map(_ % "0.10.3")
+
   lazy val receiverDeps = graphql
   lazy val senderDeps   = sttp
 
-  lazy val commonDeps = derevo ++ logging ++ cats ++ tofu ++ http4s ++ circe ++ fs2 ++ pureConfig
+  lazy val commonDeps = derevo ++ logging ++ cats ++ tofu ++ http4s ++ circe ++ fs2 ++ pureConfig ++ monix ++ redis4cats
 
 }
