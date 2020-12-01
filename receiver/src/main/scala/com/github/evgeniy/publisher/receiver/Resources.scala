@@ -1,17 +1,17 @@
-package com.github.evgeniy.publisher
+package com.github.evgeniy.publisher.receiver
 
 import cats.Parallel
 import cats.effect.{ Blocker, ConcurrentEffect, ContextShift, Effect, Resource, Sync }
-import com.github.evgeniy.publisher.api.ApiSchema
-import com.github.evgeniy.publisher.api.ApiSchema.GQL
-import com.github.evgeniy.publisher.services.{ Queue, Store, Subscribers }
-import com.typesafe.config.ConfigFactory
-import pureconfig.ConfigSource
+import com.github.evgeniy.publisher.receiver.api.ApiSchema
+import com.github.evgeniy.publisher.receiver.api.ApiSchema.GQL
+import com.github.evgeniy.publisher.receiver.services.{ Queue, Store, Subscribers }
 import com.github.evgeniy.publisher.syntax._
-import pureconfig.generic.auto._
+import com.typesafe.config.ConfigFactory
 import dev.profunktor.redis4cats.Redis
 import dev.profunktor.redis4cats.effect.Log.Stdout._
+import pureconfig.ConfigSource
 import tofu.logging.Logs
+import pureconfig.generic.auto._
 
 case class Resources[F[_]](
   appConfig: AppConfig,

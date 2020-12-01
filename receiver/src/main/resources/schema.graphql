@@ -15,6 +15,7 @@ type Queries {
     history(from: Int!, to: Int!): [String!]!
 }
 
-query {
-    history(from: 0, to:10)
+
+mutation {
+    unsubscribe(addr: "user1.com")
 }

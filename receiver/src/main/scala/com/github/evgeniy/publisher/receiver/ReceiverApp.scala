@@ -1,4 +1,4 @@
-package com.github.evgeniy.publisher
+package com.github.evgeniy.publisher.receiver
 
 import caliban.Http4sAdapter
 import cats.data.Kleisli

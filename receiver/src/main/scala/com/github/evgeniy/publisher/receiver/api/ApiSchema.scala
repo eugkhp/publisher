@@ -1,11 +1,11 @@
-package com.github.evgeniy.publisher.api
+package com.github.evgeniy.publisher.receiver.api
 
 import caliban.{ GraphQL, RootResolver }
 import cats.effect.Effect
 import caliban.interop.cats.implicits._
 import cats.Parallel
 import cats.implicits._
-import com.github.evgeniy.publisher.services.{ Queue, Store, Subscribers }
+import com.github.evgeniy.publisher.receiver.services.{ Queue, Store, Subscribers }
 
 object ApiSchema {
 

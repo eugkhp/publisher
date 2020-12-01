@@ -1,4 +1,4 @@
-package com.github.evgeniy.publisher.services
+package com.github.evgeniy.publisher.receiver.services
 
 import cats.MonadError
 import dev.profunktor.redis4cats.RedisCommands
