@@ -8,6 +8,8 @@ import tofu.syntax.logging.LoggingInterpolator
 
 trait Subscribers[F[_]] {
   def getSubs: F[Set[String]]
+
+  def removeSub(sub: String): F[Unit]
 }
 
 object Subscribers {
@@ -23,7 +25,10 @@ object Subscribers {
     override def getSubs: F[Set[String]] = for {
       subs <- client.sMembers("subscribers")
       _    <- info"Subscribers received '${subs.mkString(";")}'"
-    } yield (subs)
+    } yield subs
+
+    override def removeSub(sub: String): F[Unit] =
+      client.sRem("subscribers", sub) *> info"Subscriber kicked '$sub'"
   }
 
 }

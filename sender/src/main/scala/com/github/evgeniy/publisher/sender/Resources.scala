@@ -28,13 +28,13 @@ object Resources {
     L: Logs[F, F]
   ): Resource[F, Resources[F]] =
     for {
-      config     <- Sync[F].delay(ConfigFactory.load()).resource
-      appConfig  <- Sync[F].delay(ConfigSource.fromConfig(config).loadOrThrow[AppConfig]).resource
-      redisCli   <- RedisClient[F].from(appConfig.redis)
-      redis      <- Redis[F].fromClient(redisCli, RedisCodec.Utf8)
-      queue      <- Queue.make[F](redis).resource
-      subscriber <- Subscribers.make[F](redis).resource
-      client     <- BlazeClientBuilder[F](global).resource
-      sender     <- Sender.make[F](client).resource
-    } yield Resources(queue, subscriber, sender)
+      config      <- Sync[F].delay(ConfigFactory.load()).resource
+      appConfig   <- Sync[F].delay(ConfigSource.fromConfig(config).loadOrThrow[AppConfig]).resource
+      redisCli    <- RedisClient[F].from(appConfig.redis)
+      redis       <- Redis[F].fromClient(redisCli, RedisCodec.Utf8)
+      queue       <- Queue.make[F](redis).resource
+      subscribers <- Subscribers.make[F](redis).resource
+      client      <- BlazeClientBuilder[F](global).resource
+      sender      <- Sender.make[F](client, subscribers).resource
+    } yield Resources(queue, subscribers, sender)
 }
