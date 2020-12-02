@@ -8,8 +8,6 @@ import zio.interop.catz._
 import zio.interop.catz.implicits._
 import zio._
 
-import scala.concurrent.duration.DurationInt
-
 object SenderApp extends App {
   type F[A] = Task[A]
 
@@ -21,14 +19,14 @@ object SenderApp extends App {
         .make[F]
         .use { case Resources(queue, subs, sender) =>
           Stream
-            .fixedRate[F](1 second)
-            .evalMap(_ => queue.readMessage)
+            .eval[F, Option[String]](queue.readMessage)
             .unNone
             .evalMap { msg =>
               subs.getSubs.flatMap { users =>
                 users.parTraverse(u => sender.sendMessage(msg, u))
               }
             }
+            .repeat
             .compile
             .drain
         }

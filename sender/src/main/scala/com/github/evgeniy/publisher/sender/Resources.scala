@@ -14,7 +14,8 @@ import pureconfig.ConfigSource
 import pureconfig.generic.auto._
 import tofu.logging.Logs
 
-import scala.concurrent.ExecutionContext.global
+import java.util.concurrent.Executors
+import scala.concurrent.ExecutionContext
 
 case class Resources[F[_]](
   queue: Queue[F],
@@ -33,8 +34,9 @@ object Resources {
       redisCli    <- RedisClient[F].from(appConfig.redis)
       redis       <- Redis[F].fromClient(redisCli, RedisCodec.Utf8)
       queue       <- Queue.make[F](redis).resource
+      ec          <- Sync[F].delay(Executors.newFixedThreadPool(appConfig.threads)).resource.map(ExecutionContext.fromExecutor)
       subscribers <- Subscribers.make[F](redis).resource
-      client      <- BlazeClientBuilder[F](global).resource
+      client      <- BlazeClientBuilder[F](ec).resource
       sender      <- Sender.make[F](client, subscribers).resource
     } yield Resources(queue, subscribers, sender)
 }

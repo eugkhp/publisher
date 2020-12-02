@@ -1,5 +1,6 @@
 package com.github.evgeniy.publisher.sender
 
 case class AppConfig(
-  redis: String
+  redis: String,
+  threads: Int
 )
