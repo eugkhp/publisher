@@ -24,9 +24,10 @@ object SenderApp extends App {
             .fixedRate[F](1 second)
             .evalMap(_ => queue.readMessage)
             .unNone
-            .parZip(Stream.eval(subs.getSubs))
-            .evalMap { case (msg, users) =>
-              users.parTraverse(u => sender.sendMessage(msg, u))
+            .evalMap { msg =>
+              subs.getSubs.flatMap { users =>
+                users.parTraverse(u => sender.sendMessage(msg, u))
+              }
             }
             .compile
             .drain

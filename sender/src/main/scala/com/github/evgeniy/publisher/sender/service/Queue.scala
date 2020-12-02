@@ -22,7 +22,7 @@ object Queue {
     override def readMessage: F[Option[String]] =
       for {
         msg <- client.rPop("events")
-        _   <- info"Message read '$msg'"
+        _   <- info"Message read '$msg'".whenA(msg.isDefined)
       } yield msg
   }
 }

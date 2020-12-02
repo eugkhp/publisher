@@ -17,5 +17,6 @@ type Queries {
 
 
 mutation {
-    publish(msg: "woowow")
+#    subscribe(addr: "myurl.com")
+    publish(msg: "woowow123123")
 }
