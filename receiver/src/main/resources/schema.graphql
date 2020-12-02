@@ -17,5 +17,5 @@ type Queries {
 
 
 mutation {
-    unsubscribe(addr: "user1.com")
+    publish(msg: "woowow")
 }
