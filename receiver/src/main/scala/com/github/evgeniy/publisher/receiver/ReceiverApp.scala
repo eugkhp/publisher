@@ -31,7 +31,7 @@ object ReceiverApp extends App {
                 Router[F](
                   "/api/graphql" -> CORS(Http4sAdapter.makeHttpService(in)),
                   "/ws/graphql"  -> CORS(Http4sAdapter.makeWebSocketService(in)),
-                  "/graphiql"    -> Kleisli.liftF(StaticFile.fromResource[F]("/graphiql.html", io, None))
+                  "/graphiqlAPI" -> Kleisli.liftF(StaticFile.fromResource[F]("/graphiql.html", io, None))
                 ).orNotFound
               )
               .serve
